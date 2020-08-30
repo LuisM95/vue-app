@@ -15,10 +15,14 @@
               <form @submit.prevent="addWebsite">
                 <div class="form-group">
                   <input type="text" class="form-control" v-model="newWebsite.name" placeholder="Name">
-                  <input type="text" class="form-control" v-model="newWebsite.author" placeholder="Autor">
-                  <input type="text" class="form-control" v-model="newWebsite.url" placeholder="Url">
-                  <button type="submit" class="btn btn-primary">Save</button>
                 </div>
+                <div class="form-group">
+                  <input type="text" class="form-control" v-model="newWebsite.author" placeholder="Autor">
+                </div>
+                <div class="form-group">
+                  <input type="text" class="form-control" v-model="newWebsite.url" placeholder="Url">
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
               </form>
             </div>
           </div>
@@ -29,7 +33,7 @@
             <div class="card-header">
               <h3>WebSite List</h3>
             </div>
-            <card class="card-body">
+            <div class="card-body">
               <table class="table table-striped table-bordered">
                 <thead>
                   <tr>
@@ -40,16 +44,19 @@
                 </thead>
                 <tbody>
                   <tr v-for="w in websites" :key="w.name">
-                    <td>{{w.url}}</td>
-                    <td>{{w.name}}</td>
-                     ...
-                  </tr>
+                    <td>
+                      <a v-bind:href="w.url" target="_blank">{{w.name}}</a>
+                    </td>
+                    <td>{{w.author}}</td>
                   <td>
-                     <button class="btn btn-danger"></button>
+                     <button class="btn btn-danger" @click="deleteWebsite(w)">
+                       Delete
+                     </button>
                   </td>  
+                </tr>
                 </tbody>
               </table>
-            </card>
+            </div>
           </div>
         </div>
       </div>
@@ -58,12 +65,13 @@
 </template>
 
 <script>
+//firebase
 import Firebase from 'firebase'
 import config from './config'
+import toastr from 'toastr'
 
 let app = Firebase.initializeApp(config)
 let db = app.database();
-
 let websitesRef = db.ref('websites')
 
 
@@ -84,14 +92,25 @@ export default {
   methods:{
     addWebsite(){
       websitesRef.push(this.newWebsite)
+      toastr.success('Website Agregado')
       this.newWebsite.name = ''
       this.newWebsite.author = ''
       this.newWebsite.url = ''
+    },
+    deleteWebsite(website){
+      if(confirm('Estas seguro de querer eliminar?')){
+        websitesRef.child(website['.key']).remove()
+        toastr.success('Website Eliminado')
+      }
     }
   }
 }
 </script>
 
 <style>
-
+#app{
+  background: rgb(34,195,155);
+  background: linear-gradient(0deg, rgba(34,195,155,1) 17%, rgba(253,187,45,1) 100%);
+  height: 100vh;
+}
 </style>
